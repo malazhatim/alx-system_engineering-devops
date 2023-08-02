@@ -1,2 +1,2 @@
 #!/bin/bash
-ln -s /bin/ls __ls__:wq
+ln -sf /bin/ls __ls__
