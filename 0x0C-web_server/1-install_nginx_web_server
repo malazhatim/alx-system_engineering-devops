@@ -4,16 +4,22 @@
 apt-get -y update
 apt-get -y install nginx
 
-curl /var/www/html/index.html
-echo "Hello World!" > /var/www/html/index.html
+sudo sed -i 's/.*listen 80;/\tlisten 80;/g' /etc/nginx/sites-available/default
+sudo service nginx restart
 
-printf %s "server {
-    listen		80 default_server;
-    listen		[::]:80 default_server;
+echo "<html><body>Hello World!</body></html>" | sudo tee /var/www/html/index.html > /dev/null
+sudo nginx -t
 
-    root		/var/www/html;
-    index		index.html index.htm index.nginx-debian.html;
-}
-" > /etc/nginx/sites-available/default
+if [ $? -eq 0 ]; then
+    sudo nginx -s reload
+else
+    echo "Nginx configuration test failed. Check nginx logs for more information."
+fi
 
-service nginx restart
+response=$(curl -s http://localhost)
+
+if [[ "$response" == *Hello\ World!* ]]; then
+    echo "Nginx is configured successfully."
+else
+    echo "Nginx configuration failed. Check nginx logs for more information."
+fi
